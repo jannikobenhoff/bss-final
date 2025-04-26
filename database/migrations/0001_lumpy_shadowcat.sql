@@ -1,0 +1,1 @@
+ALTER TABLE "lections" ADD COLUMN "total_xp" integer DEFAULT 0 NOT NULL;

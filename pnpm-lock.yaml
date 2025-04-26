@@ -75,6 +75,9 @@ importers:
       pg:
         specifier: ^8.14.1
         version: 8.14.1
+      postcss:
+        specifier: ^8.5.3
+        version: 8.5.3
       postgres:
         specifier: ^3.4.5
         version: 3.4.5
@@ -107,7 +110,7 @@ importers:
         specifier: ^3.3.1
         version: 3.3.1
       '@tailwindcss/postcss':
-        specifier: ^4.0.15
+        specifier: ^4.0.17
         version: 4.0.17
       '@types/node':
         specifier: ^22.13.14
@@ -140,7 +143,7 @@ importers:
         specifier: ^15.2.4
         version: 15.2.4(eslint@9.23.0(jiti@2.4.2))(typescript@5.8.2)
       tailwindcss:
-        specifier: ^4.0.15
+        specifier: ^4.0.17
         version: 4.0.17
       tailwindcss-safe-area:
         specifier: ^0.6.0
