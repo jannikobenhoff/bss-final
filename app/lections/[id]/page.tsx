@@ -2,7 +2,7 @@ import { getSession } from "@/actions/auth";
 import { db } from "@/database/db";
 import { eq } from "drizzle-orm";
 import { redirect, notFound } from "next/navigation";
-import { lections, Lection } from "@/database/schema";
+import { lections, Lection, users } from "@/database/schema";
 import { questions, Question } from "@/database/schema";
 import { userLectionProgress, UserLectionProgress } from "@/database/schema/userLectionProgress";
 import { nanoid } from "nanoid";
@@ -14,7 +14,14 @@ export default async function LectionPage({ params }: { params: { id: string } }
     if (!session) {
         redirect("/auth/sign-in");
     }
+    // Get user details
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, session.user.id),
+    });
 
+    if (!user) {
+        redirect("/auth/sign-in");
+    }
     // Fetch the lection
     const lection = await db.query.lections.findFirst({
         where: eq(lections.id, params.id),
@@ -56,8 +63,6 @@ export default async function LectionPage({ params }: { params: { id: string } }
             userId: session.user.id,
             lectionId: lection.id,
             completed: false,
-            progress: 0,
-            currentHearts: 5
         });
 
         userProgress = await db.query.userLectionProgress.findFirst({
@@ -83,6 +88,7 @@ export default async function LectionPage({ params }: { params: { id: string } }
                     lection={lection}
                     questions={lectionQuestions as Question[]}
                     initialProgress={userProgress}
+                    user={user}
                     userId={session.user.id}
                 />
             </section>

@@ -21,9 +21,6 @@ export const userLectionProgress = pgTable("user_lection_progress", {
 		.notNull()
 		.references(() => lections.id, { onDelete: "cascade" }),
 	completed: boolean("completed").notNull().default(false),
-	progress: integer("progress").notNull().default(0), // store as percentage 0-100
-	lastInteraction: timestamp("last_interaction").notNull().defaultNow(),
-	currentHearts: integer("current_hearts").notNull().default(5),
 });
 
 export const userLectionProgressRelations = relations(

@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		const body = await request.json();
-		const { lectionId, currentHearts, progress, completed } = body;
+		const { lectionId, progress, completed } = body;
 
 		// Verify that userId matches session user id
 		const userId = session.user.id;
@@ -45,10 +45,7 @@ export async function POST(request: NextRequest) {
 		await db
 			.update(userLectionProgress)
 			.set({
-				currentHearts,
-				progress,
 				completed,
-				lastInteraction: new Date(),
 			})
 			.where(
 				and(

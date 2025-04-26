@@ -1,26 +1,34 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Lection } from "@/database/schema";
+import type { Lection, User } from "@/database/schema";
 import type { Question } from "@/database/schema";
 import type { UserLectionProgress } from "@/database/schema/userLectionProgress";
 import { Button } from "@/components/ui/button";
 import { HeartIcon, CheckIcon, XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { removeLife } from "@/actions/user";
 
 interface LectionQuizProps {
     lection: Lection;
     questions: Question[];
     initialProgress: UserLectionProgress;
+    user: User;
     userId: string;
 }
 
-export function LectionQuiz({ lection, questions, initialProgress, userId }: LectionQuizProps) {
+export function LectionQuiz({ lection, questions, initialProgress, user, userId }: LectionQuizProps) {
     const router = useRouter();
     const [currentQuestion, setCurrentQuestion] = useState(0);
-    const [hearts, setHearts] = useState(initialProgress.currentHearts);
+    const [hearts, setHearts] = useState(user.lives);
+    
+    // Wrapper function to update hearts state and database
+    const updateHearts = (newHeartCount: number) => {
+        setHearts(newHeartCount);
+        removeLife()
+    };
     const [showFeedback, setShowFeedback] = useState<boolean | null>(null);
-    const [progress, setProgress] = useState(initialProgress.progress);
+    const [progress, setProgress] = useState(0);
     const [isCompleted, setIsCompleted] = useState(initialProgress.completed);
     
     const totalQuestions = questions.length;
@@ -82,7 +90,7 @@ export function LectionQuiz({ lection, questions, initialProgress, userId }: Lec
         } else {
             // Wrong answer, deduct a heart
             const newHearts = hearts - 1;
-            setHearts(newHearts);
+            updateHearts(newHearts);
             
             setTimeout(() => {
                 setShowFeedback(null);
