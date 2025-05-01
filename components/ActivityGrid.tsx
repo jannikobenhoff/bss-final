@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { format, eachDayOfInterval, subMonths } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -54,56 +54,105 @@ export default function ActivityGrid({ activityData }: ActivityGridProps) {
 
   // Days of the week for labels
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  // State to track if we should show compact view (every other day label)
+  const [compactView, setCompactView] = useState(false);
+  
+  // Determine which days to show based on compactView
+  const visibleDays = useMemo(() => {
+    return daysOfWeek.filter((_, index) => 
+      !compactView || index % 2 === 0
+    );
+  }, [compactView]);
+  
+  // Calculate visible day indices for rendering squares
+  const visibleDayIndices = useMemo(() => {
+    return Array(7).fill(0).map((_, i) => 
+      !compactView || i % 2 === 0
+    );
+  }, [compactView]);
+  
+  // Update compact view based on container height
+  useEffect(() => {
+    const checkHeight = () => {
+      const gridContainer = document.getElementById('activity-grid-container');
+      if (gridContainer) {
+        const containerHeight = gridContainer.clientHeight;
+        const minRegularHeight = 200; // Adjust this threshold as needed
+        setCompactView(containerHeight < minRegularHeight);
+      }
+    };
+    
+    checkHeight();
+    window.addEventListener('resize', checkHeight);
+    
+    return () => {
+      window.removeEventListener('resize', checkHeight);
+    };
+  }, []);
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full" id="activity-grid-container">
       <div className="flex flex-col w-full">
-        <div className="flex w-full">
-          {/* Day of week labels - now aligned with the grid properly */}
-          <div className="flex flex-col mr-2 text-xs text-muted-foreground">
-            {daysOfWeek.map((day) => (
-              <div key={day} className="h-5 w-10 flex items-center">
-                {day}
-              </div>
-            ))}
-          </div>
-          
-          {/* Grid - increased width and height of squares */}
-          <div className="flex flex-row gap-1 flex-grow">
-            {weeks.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col gap-1 flex-1">
-                {week.map((day, dayIndex) => {
-                  const count = getActivityCount(day);
-                  return (
-                    <TooltipProvider key={dayIndex}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div 
-                            className={`h-4 w-4 rounded-sm ${getSquareColor(count)} hover:ring-1 hover:ring-orange-500`}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">
-                            {format(day, 'MMM d, yyyy')}: {count ? 'Active' : 'Inactive'}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Month labels above the grid */}
-        <div className="flex mt-4 ml-12">
-          {/* Generate month labels by getting first day of each month in the range */}
-          {Array.from(new Set(dates.map(date => format(date, 'MMM')))).map((month, i) => (
-            <div key={i} className="text-xs text-muted-foreground pr-8">
+        {/* Month labels */}
+        <div className="flex ml-12 mb-1 relative">
+          {Array.from(new Set(dates.map(date => format(date, 'MMM')))).map((month, i, arr) => (
+            <div 
+              key={i} 
+              className="text-xs text-muted-foreground"
+              style={{ 
+                width: `${100 / arr.length}%`,
+                paddingLeft: i === 0 ? '0' : '8px'
+              }}
+            >
               {month}
             </div>
           ))}
+        </div>
+        
+        <div className="flex w-full">
+          {/* Grid */}
+          <div className="w-full overflow-x-auto">
+            <div className="flex flex-nowrap" style={{ minWidth: "100%", gap: "2px" }}>
+              {weeks.map((week, weekIndex) => (
+                <div 
+                  key={weekIndex} 
+                  className="flex flex-col" 
+                  style={{ 
+                    gap: "2px",
+                    flex: "1 0 auto",
+                    minWidth: "0"
+                  }}
+                >
+                  {Array(7).fill(0).map((_, dayIndex) => {
+                    // Skip rendering if in compact mode and not a visible day
+                    
+                    const day = week[dayIndex];
+                    if (!day) return <div key={dayIndex} className="aspect-square invisible" style={{ minWidth: "12px" }} />;
+                    
+                    const count = getActivityCount(day);
+                    return (
+                      <TooltipProvider key={dayIndex}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div 
+                              className={`aspect-square rounded-sm ${getSquareColor(count)} hover:ring-1 hover:ring-orange-500`}
+                              style={{ minWidth: "12px" }}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs">
+                              {format(day, 'MMM d, yyyy')}: {count ? 'Active' : 'Inactive'}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         
         {/* Legend */}

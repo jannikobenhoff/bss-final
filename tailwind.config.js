@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        fredoka: ['var(--font-fredoka)'],
+         satoshi: ['var(--font-satoshi)'],
       },
     },
   },

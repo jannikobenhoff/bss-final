@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { fredoka } from "./fonts"
+import {  satoshi } from "./fonts"
 
 
 export default function Home() {
@@ -10,7 +10,7 @@ export default function Home() {
                
             </main>
             <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
-               <Link href="/upgrade"><div className={fredoka.className}>UPGRADE TO PREMIUM NOW!</div></Link>
+               <Link href="/upgrade"><div className={ satoshi.className}>UPGRADE TO PREMIUM NOW!</div></Link>
             </footer>
         </div>
     )
