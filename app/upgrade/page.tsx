@@ -13,6 +13,9 @@ import { authClient } from "@/lib/auth-client";
 
 
 export default function UpgradePage() {
+
+   
+    
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -40,6 +43,10 @@ export default function UpgradePage() {
     }
   };
   const { data: session } = authClient.useSession();
+
+  if (!session) {
+    redirect("/auth/sign-in");
+}
 
   const isPremium = session?.user && (session.user as any).premium === true;
 
