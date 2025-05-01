@@ -113,7 +113,7 @@ export function LectionQuiz({ lection, questions, initialProgress, user, userId 
             <div className="flex flex-col items-center justify-center p-8 bg-card rounded-lg shadow-sm border text-center">
                 <h1 className="text-2xl font-bold mb-6">{lection.title} Completed!</h1>
                 <div className="text-5xl mb-8">🎉</div>
-                <p className="text-lg mb-6">Congratulations! You've completed this lection.</p>
+                <p className="text-lg mb-6">Congratulations! You&apos;ve completed this lection.</p>
                 <Button onClick={() => router.push('/lections')}>
                     Back to Lections
                 </Button>
@@ -127,7 +127,7 @@ export function LectionQuiz({ lection, questions, initialProgress, user, userId 
             <div className="flex flex-col items-center justify-center p-8 bg-card rounded-lg shadow-sm border text-center">
                 <h1 className="text-2xl font-bold mb-6">{lection.title} Completed!</h1>
                 <div className="text-5xl mb-8">🎉</div>
-                <p className="text-lg mb-6">Congratulations! You've completed this lection.</p>
+                <p className="text-lg mb-6">Congratulations! You&apos;ve completed this lection.</p>
                 <Button onClick={() => router.push('/lections')}>
                     Back to Lections
                 </Button>

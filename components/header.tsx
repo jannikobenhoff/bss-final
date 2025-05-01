@@ -17,6 +17,8 @@ export function Header() {
     } = authClient.useSession();
 
     const isAdmin = session?.user?.role === "admin";
+    // Access premium status with optional chaining
+    const isPremium = session?.user && (session.user as any).premium === true;
 
     return (
         <header className="sticky top-0 z-50 px-4 py-3 border-b bg-background/60 backdrop-blur">
@@ -38,18 +40,18 @@ export function Header() {
                             <Image
                                 src="/icons/trophy.svg"
                                 alt="Level Icon"
-                                width={20}
-                                height={20}
+                                width={18}
+                                height={18}
                                 className="mr-2 text-primary"
                             />
-                            LECTIONS
+                            Lections
                         </Button>
                         <Button variant="ghost" className="sm:hidden">
                             <Image
                                 src="/icons/trophy.svg"
                                 alt="Level Icon"
-                                width={20}
-                                height={20}
+                                width={18}
+                                height={18}
                                 className="text-primary"
                             />
                         </Button>
@@ -60,27 +62,60 @@ export function Header() {
                             <Image
                                 src="/icons/flame.svg"
                                 alt="Statistics Icon"
-                                width={20}
-                                height={20}
+                                width={18}
+                                height={18}
                                 className="mr-2 text-primary"
                             />
-                            STATISTIC
+                            Statistic
                         </Button>
                         <Button variant="ghost" className="sm:hidden">
                             <Image
                                 src="/icons/flame.svg"
                                 alt="Statistics Icon"
-                                width={20}
-                                height={20}
+                                width={18}
+                                height={18}
                                 className="text-primary"
                             />
                         </Button>
                     </Link>
-                        
                     </nav>
                 </div>
-
-                <UserButton />
+                
+                <div className="flex items-center gap-2">
+                    {isPremium ? (
+                        <div className="flex items-center bg-blue-800/25 px-3 py-1.5 rounded-md text-white font-medium">
+                            <Image
+                                src="/icons/crown_blue.svg"
+                                alt="Premium Icon"
+                                width={18}
+                                height={18}
+                            />
+                        </div>
+                    ) : (
+                        <Link href="/upgrade">
+                            <Button variant="default" className="sm:flex sm:items-center hidden bg-blue-800 hover:bg-blue-950">
+                                <Image
+                                    src="/icons/crown.svg"
+                                    alt="Premium Icon"
+                                    width={18}
+                                    height={18}
+                                    className="mr-2 text-primary"
+                                />
+                                Unlock Premium
+                            </Button>
+                            <Button variant="ghost" className="sm:hidden">
+                                <Image
+                                    src="/icons/crown.svg"
+                                    alt="Premium Icon"
+                                    width={18}
+                                    height={18}
+                                    className="text-primary"
+                                />
+                            </Button>
+                        </Link>
+                    )}
+                    <UserButton />
+                </div>
             </div>
         </header>
     )

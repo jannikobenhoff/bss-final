@@ -56,3 +56,14 @@ export async function removeLife(): Promise<{
 
 	return { success: true, error: null };
 }
+
+export async function upgradeToPremium(userId: string) {
+	try {
+		await db.update(users).set({ premium: true }).where(eq(users.id, userId));
+
+		return true;
+	} catch (error) {
+		console.error("Error upgrading to premium:", error);
+		return false;
+	}
+}

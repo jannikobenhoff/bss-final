@@ -8,7 +8,12 @@ import { userLectionProgress, UserLectionProgress } from "@/database/schema/user
 import { nanoid } from "nanoid";
 import { LectionQuiz } from "@/app/lections/[id]/quiz";
 
-export default async function LectionPage({ params }: { params: { id: string } }) {
+export default async function LectionPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+    const { id } = await params;
     const session = await getSession();
 
     if (!session) {
@@ -24,7 +29,7 @@ export default async function LectionPage({ params }: { params: { id: string } }
     }
     // Fetch the lection
     const lection = await db.query.lections.findFirst({
-        where: eq(lections.id, params.id),
+        where: eq(lections.id, id),
     });
 
     if (!lection) {

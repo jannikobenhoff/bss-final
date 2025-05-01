@@ -5,6 +5,7 @@ import { db } from "@/database/db";
 import * as schema from "@/database/schema";
 import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
+import { customSession } from "better-auth/plugins";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -12,6 +13,16 @@ export const auth = betterAuth({
 		usePlural: true,
 		schema,
 	}),
+	user: {
+		modelName: "users",
+		additionalFields: {
+			premium: {
+				type: "boolean",
+				required: false,
+				defaultValue: false,
+			},
+		},
+	},
 	session: {
 		cookieCache: {
 			enabled: true,
