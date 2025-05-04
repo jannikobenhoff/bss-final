@@ -1,0 +1,1 @@
+ALTER TABLE "study_sessions" ALTER COLUMN "id" SET DATA TYPE text;

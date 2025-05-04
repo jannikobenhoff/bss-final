@@ -5,6 +5,7 @@ import type { ReactNode } from "react"
 import { Providers } from "./providers"
 import {  satoshi } from "./fonts"
 import { ThemeProvider} from "next-themes"
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
     title: "DiagnoHero",
@@ -30,6 +31,7 @@ export default function RootLayout({
                         </div>
                     </Providers>
                 </ThemeProvider>
+                <Toaster />
             </body>
         </html>
     )

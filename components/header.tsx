@@ -78,6 +78,29 @@ export function Header() {
                             />
                         </Button>
                     </Link>
+
+                    {/* Add Schedule link */}
+                    <Link href="/schedule">
+                        <Button variant="ghost" className="sm:flex sm:items-center hidden">
+                            <Image
+                                src="/icons/calendar.svg"
+                                alt="Schedule Icon"
+                                width={18}
+                                height={18}
+                                className="mr-2 text-primary"
+                            />
+                            Schedule
+                        </Button>
+                        <Button variant="ghost" className="sm:hidden">
+                            <Image
+                                src="/icons/calendar.svg"
+                                alt="Schedule Icon"
+                                width={18}
+                                height={18}
+                                className="text-primary"
+                            />
+                        </Button>
+                    </Link>
                     </nav>
                 </div>
                 
