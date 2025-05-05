@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { CalendarIcon, CheckCircle2, Clock, PlusCircle, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { StudySessionType, addStudySession, deleteStudySession, getStudySessions, toggleSessionComplete } from "@/actions/studySchedule";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 export default function SchedulePage() {
+  const { data: session, refetch } = authClient.useSession();
+
+  if (!session) {
+    redirect("/auth/sign-in");
+  }
+  
   const router = useRouter();
   const [sessions, setSessions] = useState<StudySessionType[]>([]);
   const [loading, setLoading] = useState(true);

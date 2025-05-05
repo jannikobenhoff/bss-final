@@ -10,6 +10,7 @@ import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { upgradeToPremium } from "@/actions/user";
 import { authClient } from "@/lib/auth-client";
+import { refreshUserSession } from "@/actions/user";
 
 
 export default function UpgradePage() {
@@ -19,6 +20,7 @@ export default function UpgradePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { data: session, refetch } = authClient.useSession();
 
   const handleUpgrade = async () => {
     setIsLoading(true);
@@ -32,20 +34,26 @@ export default function UpgradePage() {
       const success = await upgradeToPremium(session.user.id);
       if (success) {
         setIsSuccess(true);
+        
+        // Force refresh the session
+        await refreshUserSession();
+        
+        // Show success message briefly
         setTimeout(() => {
-          router.refresh();
-          router.push("/");
-        }, 2000);
+          // Explicitly sign out the user and redirect to login
+          authClient.signOut().then(() => {
+            router.push("/auth/sign-in?callbackUrl=/");
+          });
+        }, 1500);
       }
     } finally {
       setIsLoading(false);
     }
   };
-  const { data: session } = authClient.useSession();
 
   if (!session) {
     redirect("/auth/sign-in");
-}
+  }
 
   const isPremium = session?.user && (session.user as any).premium === true;
 

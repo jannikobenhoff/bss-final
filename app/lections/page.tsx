@@ -35,7 +35,9 @@ export default async function LectionsPage() {
         <main className="py-8 px-4">
             <section className="container mx-auto">
                 <h1 className="text-2xl font-bold mb-6">Lections</h1>
-                
+                <p className="text-muted-foreground mb-4">
+                    Here you can find all the lections that you can complete. If you run out of hearts, you can upgrade to premium to get more hearts or wait for them to regenerate.
+                </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {allLections.map((lection: Lection) => {
                         const progress = progressByLectionId.get(lection.id) || null;
@@ -56,12 +58,12 @@ export default async function LectionsPage() {
                                         )}
                                     </div>
                                     <p className="text-muted-foreground mb-4">{lection.description}</p>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">
+                                    <div className="flex items-center justify-end">
+                                        {/* <span className="text-sm text-muted-foreground">
                                             Level Required: {lection.levelRequired}
-                                        </span>
+                                        </span> */}
                                         <Link href={`/lections/${lection.id}`}>
-                                            <Button variant="default" size="sm">
+                                            <Button variant="default" size="sm" className="bg-blue-800 hover:bg-blue-950">
                                                 {isCompleted ? "Review" : "Start"}
                                             </Button>
                                         </Link>

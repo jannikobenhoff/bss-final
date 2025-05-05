@@ -95,6 +95,7 @@ export default async function LectionPage({
                     initialProgress={userProgress}
                     user={user}
                     userId={session.user.id}
+                    isPremium={session.user.premium || false}
                 />
             </section>
         </main>

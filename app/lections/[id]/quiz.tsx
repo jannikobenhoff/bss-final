@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { HeartIcon, CheckIcon, XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { removeLife } from "@/actions/user";
+import Image from "next/image";
 
 interface LectionQuizProps {
     lection: Lection;
@@ -15,9 +16,10 @@ interface LectionQuizProps {
     initialProgress: UserLectionProgress;
     user: User;
     userId: string;
+    isPremium: boolean;
 }
 
-export function LectionQuiz({ lection, questions, initialProgress, user, userId }: LectionQuizProps) {
+export function LectionQuiz({ lection, questions, initialProgress, user, userId, isPremium }: LectionQuizProps) {
     const router = useRouter();
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [hearts, setHearts] = useState(user.lives);
@@ -25,7 +27,9 @@ export function LectionQuiz({ lection, questions, initialProgress, user, userId 
     // Wrapper function to update hearts state and database
     const updateHearts = (newHeartCount: number) => {
         setHearts(newHeartCount);
-        removeLife()
+        if (!isPremium) {
+            removeLife()
+        }
     };
     const [showFeedback, setShowFeedback] = useState<boolean | null>(null);
     const [progress, setProgress] = useState(0);
@@ -96,7 +100,7 @@ export function LectionQuiz({ lection, questions, initialProgress, user, userId 
                 setShowFeedback(null);
                 
                 // Check if out of hearts
-                if (newHearts <= 0) {
+                if (newHearts <= 0 && !isPremium) {
                     // Reset hearts and progress only
                     updateProgress(5, progress, false);
                     router.push('/lections');
@@ -107,7 +111,7 @@ export function LectionQuiz({ lection, questions, initialProgress, user, userId 
         }
     };
 
-    // If the quiz is completed, show a completion screen
+
     if (isCompleted) {
         return (
             <div className="flex flex-col items-center justify-center p-8 bg-card rounded-lg shadow-sm border text-center">
@@ -121,7 +125,7 @@ export function LectionQuiz({ lection, questions, initialProgress, user, userId 
         );
     }
 
-    // If there are no more questions, show completion
+
     if (currentQuestion >= totalQuestions) {
         return (
             <div className="flex flex-col items-center justify-center p-8 bg-card rounded-lg shadow-sm border text-center">
@@ -158,14 +162,15 @@ export function LectionQuiz({ lection, questions, initialProgress, user, userId 
                     </span>
                     
                     {/* Hearts/lives display */}
-                    <div className="flex gap-1">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <HeartIcon 
-                                key={i} 
-                                className={`h-5 w-5 ${i < hearts ? 'text-destructive fill-destructive' : 'text-muted-foreground'}`} 
-                            />
-                        ))}
-                    </div>
+                    {isPremium ? <Image src="/icons/heart_infinity.svg" alt="Premium" width={24} height={24} /> : 
+                        <div className="flex gap-1">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <HeartIcon 
+                                    key={i} 
+                                    className={`h-5 w-5 ${i < hearts ? 'text-destructive fill-destructive' : 'text-muted-foreground'}`} 
+                                />
+                            ))}
+                        </div>}
                 </div>
             </div>
             

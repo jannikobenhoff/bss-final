@@ -8,6 +8,9 @@ import { userLectionProgress } from "@/database/schema/userLectionProgress";
 import { HeartIcon, BookOpenIcon, FlameIcon, TrophyIcon } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import ActivityGrid from "@/components/ActivityGrid";
+import { getCurrentUser } from "@/actions/user";
+import { Constants } from "@/lib/constants";
+import Image from "next/image";
 
 export default async function StatisticsPage() {
     const session = await getSession();
@@ -17,13 +20,13 @@ export default async function StatisticsPage() {
     }
 
     // Get user details
-    const user = await db.query.users.findFirst({
-        where: eq(users.id, session.user.id),
-    });
-
+    const user = await getCurrentUser();
+    
     if (!user) {
         redirect("/auth/sign-in");
     }
+
+    const isPremium = session.user.premium || false;
 
     // Get user activity for last 3 months
     const threeMonthsAgo = new Date();
@@ -52,11 +55,13 @@ export default async function StatisticsPage() {
     
     if (user.lives < 5) {
         // Life regenerates every hour, calculate time until next regeneration
-        const minutesSinceUpdate = Math.floor((now.getTime() - user.livesUpdatedAt.getTime()) / (1000 * 60));
-        const minutesUntilNextLife = 60 - (minutesSinceUpdate % 60);
-        
-        nextLifeRegenerationTime = new Date(now.getTime() + minutesUntilNextLife * 60 * 1000);
-        formattedNextLifeTime = `${nextLifeRegenerationTime.getHours().toString().padStart(2, '0')}:${nextLifeRegenerationTime.getMinutes().toString().padStart(2, '0')}`;
+        const timeInSecondsLastRefill = user.livesUpdatedAt.getTime() + (Constants.secondsPerHeart * 1000)
+        const minutesUntilNextLife = ((timeInSecondsLastRefill - now.getTime()) / 60000).toFixed(0);
+
+        nextLifeRegenerationTime = new Date();//minutesUntilNextLife * 60 * 1000);
+        console.log(minutesUntilNextLife)
+        console.log(new Date(timeInSecondsLastRefill))
+        formattedNextLifeTime = `${minutesUntilNextLife} min`;//`${nextLifeRegenerationTime.getHours().toString().padStart(2, '0')}:${nextLifeRegenerationTime.getMinutes().toString().padStart(2, '0')}`;
     }
 
     // Group activities by day for the activity grid
@@ -74,7 +79,9 @@ export default async function StatisticsPage() {
         <main className="py-8 px-4">
             <section className="container mx-auto">
                 <h1 className="text-2xl font-bold mb-6">Statistics</h1>
-                
+                <p className="text-muted-foreground mb-4">
+                    Here you can find an overview of your progress, your current streak, and your highest streak, completed lections and lives.
+                </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -108,10 +115,14 @@ export default async function StatisticsPage() {
                     
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium">Lives</CardTitle>
-                            <HeartIcon className="h-5 w-5 text-destructive" />
+                            <CardTitle className="text-sm font-medium">{isPremium ? "Unlimited Lives" : "Lives"}</CardTitle>
+                            {isPremium ? <Image src="/icons/heart_infinity.svg" alt="Premium" width={24} height={24} /> : <HeartIcon className="h-5 w-5 text-destructive" />}
                         </CardHeader>
-                        <CardContent>
+                        {isPremium ? <CardContent>
+                            <div className="text-2xl font-bold flex items-center gap-1">
+                                Unlimited
+                            </div>
+                        </CardContent> : <CardContent>
                             <div className="text-2xl font-bold flex items-center gap-1">
                                 {user.lives}/5
                                 {nextLifeRegenerationTime && (
@@ -121,7 +132,7 @@ export default async function StatisticsPage() {
                                     </span>
                                 )}
                             </div>
-                        </CardContent>
+                        </CardContent>}
                     </Card>
                 </div>
                 
