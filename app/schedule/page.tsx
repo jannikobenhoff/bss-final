@@ -19,16 +19,6 @@ import { authClient } from "@/lib/auth-client";
 
 export default function SchedulePage() {
   const { data: session, isPending, refetch } = authClient.useSession();
-
-  // Show loading state while session is being fetched
-  if (isPending) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  if (!session) {
-    redirect("/auth/sign-in");
-  }
-  
   const router = useRouter();
   const [sessions, setSessions] = useState<StudySessionType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -148,6 +138,15 @@ export default function SchedulePage() {
       console.error(error);
     }
   };
+
+  // Show loading state while session is being fetched
+  if (isPending) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  if (!session) {
+    return redirect("/auth/sign-in");
+  }
 
   if (loading) {
     return <div className="container mx-auto px-4 py-10">Loading study schedule...</div>;
