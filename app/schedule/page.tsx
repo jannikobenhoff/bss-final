@@ -144,9 +144,9 @@ export default function SchedulePage() {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  if (!session) {
-    return redirect("/auth/sign-in");
-  }
+  // if (!session) {
+  //   return redirect("/auth/sign-in");
+  // }
 
   if (loading) {
     return <div className="container mx-auto px-4 py-10">Loading study schedule...</div>;
