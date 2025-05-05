@@ -32,7 +32,6 @@ export default function UpgradePage() {
       const success = await upgradeToPremium(session.user.id);
       if (success) {
         setIsSuccess(true);
-        // Redirect after a short delay to show success message
         setTimeout(() => {
           router.refresh();
           router.push("/");
