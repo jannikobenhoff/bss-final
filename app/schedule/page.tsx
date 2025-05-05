@@ -20,7 +20,7 @@ import { authClient } from "@/lib/auth-client";
 export default function SchedulePage() {
   const { data: session, isPending, refetch } = authClient.useSession();
   const router = useRouter();
-  const [sessions, setSessions] = useState<StudySessionType[]>([]);
+  const [studySessions, setStudySessions] = useState<StudySessionType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -39,7 +39,7 @@ export default function SchedulePage() {
         const data = await getStudySessions();
         
         if (data) {
-          setSessions(data);
+          setStudySessions(data);
         } else {
           setError("Failed to fetch study sessions");
         }
@@ -74,7 +74,7 @@ export default function SchedulePage() {
       // Check if the operation was successful and data exists
       if (result.success && result.data) {
         // Add new session to state
-        setSessions([...sessions, result.data]);
+        setStudySessions([...studySessions, result.data]);
         
         // Reset form
         setTitle("");
@@ -102,7 +102,7 @@ export default function SchedulePage() {
       const result = await deleteStudySession(id);
       
       if (result.success) {
-        setSessions(sessions.filter(session => session.id !== id));
+        setStudySessions(studySessions.filter(studySession => studySession.id !== id));
         toast.success("Study session deleted successfully");
       } else {
         toast.error(result.error || "Failed to delete study session");
@@ -120,11 +120,11 @@ export default function SchedulePage() {
       const result = await toggleSessionComplete(id, !completed);
       
       if (result.success) {
-        setSessions(
-          sessions.map(session => 
-            session.id === id 
-              ? { ...session, completed: !completed } 
-              : session
+        setStudySessions(
+          studySessions.map(studySession => 
+            studySession.id === id 
+              ? { ...studySession, completed: !completed } 
+              : studySession
           )
         );
         toast.success(`Study session marked as ${!completed ? "completed" : "incomplete"}`);
@@ -165,42 +165,42 @@ export default function SchedulePage() {
         <div className="md:col-span-7 space-y-4">
           <h2 className="text-xl font-semibold mb-4">Upcoming Sessions</h2>
           
-          {sessions.length === 0 ? (
+          {studySessions.length === 0 ? (
             <p className="text-muted-foreground">No study sessions scheduled. Add one to get started!</p>
           ) : (
             <div className="space-y-4 pr-2">
-              {sessions.map((session) => (
-                <Card key={session.id} className={cn(
+              {studySessions.map((studySession) => (
+                <Card key={studySession.id} className={cn(
                   "transition-all",
-                  Boolean(session.completed) ? "bg-muted/50" : ""
+                  Boolean(studySession.completed) ? "bg-muted/50" : ""
                 )}>
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                       <CardTitle className={cn(
-                        Boolean(session.completed) ? "line-through text-muted-foreground" : ""
+                        Boolean(studySession.completed) ? "line-through text-muted-foreground" : ""
                       )}>
-                        {session.title}
+                        {studySession.title}
                       </CardTitle>
                       <div className="flex space-x-1">
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => handleToggleComplete(session.id, Boolean(session.completed))}
+                          onClick={() => handleToggleComplete(studySession.id, Boolean(studySession.completed))}
                         >
                           <CheckCircle2 
                             className={cn(
                               "h-5 w-5",
-                              Boolean(session.completed) ? "text-green-500" : "text-muted-foreground"
+                              Boolean(studySession.completed) ? "text-green-500" : "text-muted-foreground"
                             )} 
                           />
                           <span className="sr-only">
-                            {Boolean(session.completed) ? "Mark as incomplete" : "Mark as complete"}
+                            {Boolean(studySession.completed) ? "Mark as incomplete" : "Mark as complete"}
                           </span>
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => handleDeleteSession(session.id)}
+                          onClick={() => handleDeleteSession(studySession.id)}
                         >
                           <Trash2 className="h-5 w-5 text-muted-foreground" />
                           <span className="sr-only">Delete</span>
@@ -209,21 +209,21 @@ export default function SchedulePage() {
                     </div>
                     <CardDescription className="flex items-center gap-1">
                       <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span>{format(new Date(session.date), "PPP")}</span>
+                      <span>{format(new Date(studySession.date), "PPP")}</span>
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {session.description && (
+                    {studySession.description && (
                       <p className={cn(
                         "text-sm mb-2",
-                        Boolean(session.completed) ? "text-muted-foreground line-through" : ""
+                        Boolean(studySession.completed) ? "text-muted-foreground line-through" : ""
                       )}>
-                        {session.description}
+                        {studySession.description}
                       </p>
                     )}
                     <div className="flex items-center text-xs text-muted-foreground">
                       <Clock className="h-3.5 w-3.5 mr-1" />
-                      {session.duration}
+                      {studySession.duration}
                     </div>
                   </CardContent>
                 </Card>
