@@ -18,7 +18,12 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
 export default function SchedulePage() {
-  const { data: session, refetch } = authClient.useSession();
+  const { data: session, isPending, refetch } = authClient.useSession();
+
+  // Show loading state while session is being fetched
+  if (isPending) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
 
   if (!session) {
     redirect("/auth/sign-in");

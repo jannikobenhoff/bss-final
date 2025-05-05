@@ -63,7 +63,7 @@ export default async function LectionsPage() {
                                             Level Required: {lection.levelRequired}
                                         </span> */}
                                         <Link href={`/lections/${lection.id}`}>
-                                            <Button variant="default" size="sm" className="bg-blue-800 hover:bg-blue-950">
+                                            <Button variant="default" size="sm" className={`${isCompleted ? "bg-green-800 hover:bg-green-950" : "bg-blue-800 hover:bg-blue-950"}`}>
                                                 {isCompleted ? "Review" : "Start"}
                                             </Button>
                                         </Link>

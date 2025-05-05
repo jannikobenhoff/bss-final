@@ -13,39 +13,38 @@ import { getUserStatistics } from "@/actions/userStatistics";
 import { useEffect, useState } from "react";
 import { HeartIcon } from "lucide-react";
 import { redirect } from "next/navigation";
+import { UserStatistics } from "@/actions/userStatistics";
+
 export default function Home() {
-    const { data: session } = authClient.useSession();
-    if(!session) {
-        redirect("/auth/sign-in");
-    }
-    const isPremium = session?.user && (session.user as any).premium === true;
-    
-    const [sessions, setSessions] = useState<StudySessionType[]>([]);
+    const { data: session, isPending } = authClient.useSession();
+    const [studySessions, setStudySessions] = useState<StudySessionType[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     
-    const [stats, setStats] = useState({
+    // Initialize stats with a default value instead of null
+    const [stats, setStats] = useState<UserStatistics>({
         completedLections: 0,
         totalQuizzes: 0,
         averageAccuracy: 0,
         hearts: 5,
         maxHearts: 5,
-        timeUntilNextHeart: null as number | null,
-        loading: true
+        timeUntilNextHeart: null
     });
     
-    // Timer for heart countdown
     const [countdown, setCountdown] = useState<string>("");
-
-    // Fetch study sessions on component mount
+    
+    // Move all useEffect hooks here, before any conditional returns
     useEffect(() => {
+      // Only run if we have a session
+      if (!session) return;
+      
       const fetchSessions = async () => {
         setLoading(true);
         try {
           const data = await getStudySessions();
           
           if (data) {
-            setSessions(data);
+            setStudySessions(data);
           } else {
             setError("Failed to fetch study sessions");
           }
@@ -58,14 +57,15 @@ export default function Home() {
       };
 
       fetchSessions();
-    }, []);
+    }, [session]);
     
     // Fetch user statistics
     useEffect(() => {
+      if (!session) return;
+      
       const fetchStats = async () => {
         try {
           const userStats = await getUserStatistics();
-          console.log(userStats)
           if (userStats) {
             setStats({
               completedLections: userStats.completedLections,
@@ -73,15 +73,11 @@ export default function Home() {
               averageAccuracy: userStats.averageAccuracy,
               hearts: userStats.hearts,
               maxHearts: userStats.maxHearts,
-              timeUntilNextHeart: userStats.timeUntilNextHeart,
-              loading: false
+              timeUntilNextHeart: userStats.timeUntilNextHeart
             });
-          } else {
-            setStats(prev => ({ ...prev, loading: false }));
           }
         } catch (err) {
           console.error("Error loading user statistics:", err);
-          setStats(prev => ({ ...prev, loading: false }));
         }
       };
 
@@ -90,11 +86,11 @@ export default function Home() {
       // Refresh stats every minute to update heart regeneration
       const intervalId = setInterval(fetchStats, 60000);
       return () => clearInterval(intervalId);
-    }, []);
+    }, [session]);
     
     // Format countdown timer for hearts
     useEffect(() => {
-      if (stats.timeUntilNextHeart === null) {
+      if (!stats.timeUntilNextHeart) {
         setCountdown("");
         return;
       }
@@ -114,8 +110,7 @@ export default function Home() {
                 averageAccuracy: userStats.averageAccuracy,
                 hearts: userStats.hearts,
                 maxHearts: userStats.maxHearts,
-                timeUntilNextHeart: userStats.timeUntilNextHeart,
-                loading: false
+                timeUntilNextHeart: userStats.timeUntilNextHeart
               });
             }
           };
@@ -132,7 +127,18 @@ export default function Home() {
       
       return () => clearInterval(timer);
     }, [stats.timeUntilNextHeart]);
-
+    
+    // Now handle conditional returns AFTER all hooks are defined
+    if (isPending) {
+        return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    }
+    
+    if(!session) {
+        redirect("/auth/sign-in");
+    }
+    
+    const isPremium = session?.user && (session.user as any).premium === true;
+    
     // Format date for display
     const formatSessionDate = (date: Date) => {
       const today = new Date();
@@ -229,7 +235,7 @@ export default function Home() {
                                 <div className="p-4 text-sm text-red-600 bg-red-50 rounded-md">
                                     {error}
                                 </div>
-                            ) : sessions.length === 0 ? (
+                            ) : studySessions.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-32 text-center text-muted-foreground">
                                     <p>No scheduled sessions yet</p>
                                     <Link href="/schedule" className="text-sm text-blue-600 hover:underline mt-2">
@@ -237,23 +243,23 @@ export default function Home() {
                                     </Link>
                                 </div>
                             ) : (
-                                sessions
+                                studySessions
                                     .filter(s => new Date(s.date) > new Date()) // Only show future sessions
                                     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) // Sort by date ascending
                                     .slice(0, 3) // Only show first 3
-                                    .map((session) => (
-                                        <div key={session.id} className="flex flex-col gap-1 p-3 rounded-md border">
+                                    .map((studySession) => (
+                                        <div key={studySession.id} className="flex flex-col gap-1 p-3 rounded-md border">
                                             <div className="flex justify-between items-center">
-                                                <h4 className="font-medium">{session.title}</h4>
+                                                <h4 className="font-medium">{studySession.title}</h4>
                                                 <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
-                                                    {session.completed ? "Completed" : "Scheduled"}
+                                                    {studySession.completed ? "Completed" : "Scheduled"}
                                                 </span>
                                             </div>
-                                            <div className="text-sm text-muted-foreground">{formatSessionDate(session.date)}</div>
-                                            <div className="text-sm">Duration: {session.duration}</div>
-                                            {session.description && (
+                                            <div className="text-sm text-muted-foreground">{formatSessionDate(studySession.date)}</div>
+                                            <div className="text-sm">Duration: {studySession.duration}</div>
+                                            {studySession.description && (
                                                 <div className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                                                    {session.description}
+                                                    {studySession.description}
                                                 </div>
                                             )}
                                         </div>
@@ -278,7 +284,7 @@ export default function Home() {
                         <CardDescription>Overall learning statistics</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {stats.loading ? (
+                        {loading ? (
                             <div className="flex justify-center items-center h-20">
                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                             </div>
